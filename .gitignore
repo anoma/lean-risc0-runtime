@@ -1,0 +1,109 @@
+# CMake build artifacts
+build/
+Build/
+cmake-build-*/
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+cmake_install.cmake
+install_manifest.txt
+CTestTestfile.cmake
+Testing/
+compile_commands.json
+_deps/
+
+# Generated files
+generated-include/
+*.so
+*.dylib
+*.dll
+*.a
+*.lib
+*.exe
+
+# Object files
+*.o
+*.obj
+*.lo
+*.slo
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so.*
+*.dylib.*
+
+# Compiled Static libraries
+*.la
+*.lai
+
+# Executables
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.user
+*.suo
+*.ncb
+*.aps
+*.psess
+*.vsp
+*.vspx
+*.sdf
+*.opensdf
+*.cachefile
+*.VC.db
+*.VC.opendb
+
+# Backup files
+*.bak
+*.gho
+*.ori
+*.orig
+*.tmp
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Core dumps
+core
+core.*
+vgcore.*
+
+# Profiling data
+*.gcda
+*.gcno
+*.gcov
+gmon.out
+callgrind.out.*
+perf.data
+perf.data.old
+
+# ASan/Sanitizer output
+*.asan
+*.lsan
+*.tsan
+*.ubsan
+
+# Misc
+*.log
