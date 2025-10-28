@@ -8,13 +8,13 @@ Author: Markus Himmel, Sofia Rodrigues
 #include "runtime/libuv.h"
 #include "runtime/object.h"
 
-#ifndef LEAN_EMSCRIPTEN
+#if !defined(LEAN_EMSCRIPTEN) && !defined(LEAN_RISC0)
 #include <uv.h>
 #endif
 
 namespace lean {
 
-#ifndef LEAN_EMSCRIPTEN
+#if !defined(LEAN_EMSCRIPTEN) && !defined(LEAN_RISC0)
 
 extern "C" void initialize_libuv() {
     initialize_libuv_timer();

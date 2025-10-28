@@ -20,16 +20,20 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #endif
 // Linux include files
 #include <unistd.h> // NOLINT
+#ifndef LEAN_RISC0
 #include <sys/mman.h>
+#endif
 #include <sys/file.h>
-#ifndef LEAN_EMSCRIPTEN
+#if !defined(LEAN_EMSCRIPTEN) && !defined(LEAN_RISC0)
 #include <sys/random.h>
 #endif
 #endif
 #ifndef LEAN_WINDOWS
 #include <csignal>
 #endif
+#ifndef LEAN_RISC0
 #include <dirent.h>
+#endif
 #include <fcntl.h>
 #include <iostream>
 #include <chrono>
@@ -40,7 +44,9 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include <cstdlib>
 #include <cctype>
 #include <sys/stat.h>
+#ifndef LEAN_RISC0
 #include <uv.h>
+#endif
 #include "util/io.h"
 #include "runtime/alloc.h"
 #include "runtime/io.h"
@@ -52,7 +58,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 
 #ifdef _MSC_VER
 #define S_ISDIR(mode) ((mode & _S_IFDIR) != 0)
-#else
+#elifndef LEAN_RISC0
 #include <dirent.h>
 #endif
 
@@ -255,6 +261,11 @@ extern "C" LEAN_EXPORT obj_res lean_decode_io_error(int errnum, b_obj_arg fname)
     }
 }
 
+#ifdef LEAN_RISC0
+extern "C" LEAN_EXPORT obj_res lean_decode_uv_error(int errnum, b_obj_arg fname) {
+        return lean_mk_io_error_other_error(errnum, mk_string("UV errors are not supported on RISC0"));
+}
+#else
 extern "C" LEAN_EXPORT obj_res lean_decode_uv_error(int errnum, b_obj_arg fname) {
     object * details = mk_string(uv_strerror(errnum));
     // Keep in sync with lean_decode_io_error above
@@ -361,6 +372,7 @@ extern "C" LEAN_EXPORT obj_res lean_decode_uv_error(int errnum, b_obj_arg fname)
         return lean_mk_io_error_other_error(errnum, details);
     }
 }
+#endif
 
 /* IO.setAccessRights (filename : @& String) (mode : UInt32) : IO Handle */
 extern "C" LEAN_EXPORT obj_res lean_chmod (b_obj_arg filename, uint32_t mode, obj_arg /* w */) {
@@ -401,6 +413,8 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_mk(b_obj_arg filename, uint8 
     case 2: fp_mode = "w"; break;  // writeNew
     case 3: fp_mode = "r+"; break;  // readWrite
     case 4: fp_mode = "a"; break;  // append
+    default:
+        return io_result_mk_error("invalid file mode");
     }
     FILE * fp = fdopen(fd, fp_mode);
     if (!fp) {
@@ -1011,6 +1025,9 @@ structure DirEntry where
 constant readDir : @& FilePath → IO (Array DirEntry)
 */
 extern "C" LEAN_EXPORT obj_res lean_io_read_dir(b_obj_arg dirname, obj_arg) {
+#ifdef LEAN_RISC0
+    return io_result_mk_error("lean_io_read_dir is not supported on RISC0");
+#else
     object * arr = array_mk_empty();
     DIR * dp = opendir(string_cstr(dirname));
     if (!dp) {
@@ -1028,6 +1045,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_read_dir(b_obj_arg dirname, obj_arg) {
     }
     lean_always_assert(closedir(dp) == 0);
     return io_result_mk_ok(arr);
+#endif
 }
 
 /*
@@ -1090,7 +1108,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_metadata(b_obj_arg fname, obj_arg) {
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_symlink_metadata(b_obj_arg fname, obj_arg) {
-#ifdef LEAN_WINDOWS
+#if defined(LEAN_WINDOWS) || defined(LEAN_RISC0)
     return lean_io_metadata(fname, io_mk_world());
 #else
     struct stat st;
@@ -1146,6 +1164,9 @@ extern "C" LEAN_EXPORT obj_res lean_io_rename(b_obj_arg from, b_obj_arg to, lean
 
 /* createTempFile : IO (Handle × FilePath) */
 extern "C" LEAN_EXPORT obj_res lean_io_create_tempfile(lean_object * /* w */) {
+#ifdef LEAN_RISC0
+    return io_result_mk_error("lean_io_create_tempfile is not supported on RISC0");
+#else
     char path[PATH_MAX];
     size_t base_len = PATH_MAX;
     int ret = uv_os_tmpdir(path, &base_len);
@@ -1187,10 +1208,14 @@ extern "C" LEAN_EXPORT obj_res lean_io_create_tempfile(lean_object * /* w */) {
         uv_fs_req_cleanup(&req);
         return lean_io_result_mk_ok(pair.steal());
     }
+#endif
 }
 
 /* createTempDir : IO FilePath */
 extern "C" LEAN_EXPORT obj_res lean_io_create_tempdir(lean_object * /* w */) {
+#ifdef LEAN_RISC0
+    return io_result_mk_error("lean_io_create_tempdir is not supported on RISC0");
+#else
     char path[PATH_MAX];
     size_t base_len = PATH_MAX;
     int ret = uv_os_tmpdir(path, &base_len);
@@ -1231,6 +1256,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_create_tempdir(lean_object * /* w */) {
         uv_fs_req_cleanup(&req);
         return res;
     }
+#endif
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_remove_file(b_obj_arg fname, obj_arg) {

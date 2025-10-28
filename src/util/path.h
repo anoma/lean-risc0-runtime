@@ -18,10 +18,11 @@ public:
     file_not_found_exception(std::string const & fname);
 };
 
-#if !defined(LEAN_EMSCRIPTEN)
+#if !defined(LEAN_EMSCRIPTEN) && !defined(LEAN_RISC0)
 std::string get_exe_location();
 #endif
 
+#ifndef LEAN_RISC0
 char const * get_dir_sep();
 char get_dir_sep_ch();
 bool is_path_sep(char c);
@@ -44,4 +45,5 @@ optional<bool> is_dir(std::string const & fn);
 std::vector<std::string> read_dir(std::string const & dirname);
 
 time_t get_mtime(std::string const & fname);
+#endif
 }

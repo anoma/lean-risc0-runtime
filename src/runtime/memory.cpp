@@ -62,6 +62,21 @@ size_t get_current_rss() {
 /* ----------------------------------------------------
    End of Windows version
    --------------------------------------------------- */
+
+#elif defined(LEAN_RISC0)
+
+namespace lean {
+size_t get_peak_rss() {
+    // RISC0 does not support getting memory usage.
+    return 0;
+}
+
+size_t get_current_rss() {
+    // RISC0 does not support getting memory usage.
+    return 0;
+}
+}
+
 #else
 /* ----------------------------------------------------
    Linux/OSX version for get_peak_rss and get_current_rss

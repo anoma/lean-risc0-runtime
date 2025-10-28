@@ -9,7 +9,7 @@ Author: Sofia Rodrigues
 #include "runtime/io.h"
 #include "runtime/object.h"
 
-#ifndef LEAN_EMSCRIPTEN
+#if !defined(LEAN_EMSCRIPTEN) && !defined(LEAN_RISC0)
 #include <uv.h>
 #endif
 
@@ -17,7 +17,7 @@ namespace lean {
 
 void initialize_libuv_loop();
 
-#ifndef LEAN_EMSCRIPTEN
+#if !defined(LEAN_EMSCRIPTEN) && !defined(LEAN_RISC0)
 using namespace std;
 
 // Event loop structure for managing asynchronous events and synchronization across multiple threads.

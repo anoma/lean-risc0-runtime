@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "runtime/compact.h"
 #include "util/alloc.h"
 
-#ifndef LEAN_WINDOWS
+#if !defined(LEAN_WINDOWS) && !defined(LEAN_RISC0)
 #include <sys/mman.h>
 #endif
 

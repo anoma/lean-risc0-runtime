@@ -44,6 +44,13 @@ stack_guard::stack_guard() {
 }
 
 stack_guard::~stack_guard() {}
+#elifdef LEAN_RISC0
+// RISC0 does not support stack overflow detection at the moment.
+
+stack_guard::stack_guard() {}
+
+stack_guard::~stack_guard() {}
+
 #else
 // Install a segfault signal handler and abort with custom message if address is within stack guard.
 // https://github.com/rust-lang/rust/blob/master/library/std/src/sys/pal/unix/stack_overflow.rs
@@ -102,6 +109,8 @@ void initialize_stack_overflow() {
     g_stack_guard = new stack_guard();
 #ifdef LEAN_WINDOWS
     AddVectoredExceptionHandler(0, stack_overflow_handler);
+#elifdef LEAN_RISC0
+    // no stack overflow handler
 #else
     for (auto signum : {SIGSEGV, SIGBUS}) {
         struct sigaction action;

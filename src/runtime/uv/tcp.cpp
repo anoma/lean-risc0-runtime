@@ -9,7 +9,7 @@ Author: Sofia Rodrigues
 
 namespace lean {
 
-#ifndef LEAN_EMSCRIPTEN
+#if !defined(LEAN_EMSCRIPTEN) && !defined(LEAN_RISC0)
 
 // Stores all the things needed to connect to a TCP socket.
 typedef struct {

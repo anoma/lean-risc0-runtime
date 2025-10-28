@@ -312,6 +312,8 @@ void initialize_process() {
 }
 void finalize_process() {}
 
+#elif defined(LEAN_RISC0)
+// RISC0 does not support process creation
 #else
 
 extern "C" LEAN_EXPORT obj_res lean_io_process_get_current_dir(obj_arg) {
@@ -340,7 +342,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_get_tid(obj_arg) {
     uint64_t tid;
 #ifdef __APPLE__
     lean_always_assert(pthread_threadid_np(NULL, &tid) == 0);
-#elif defined(LEAN_EMSCRIPTEN)
+#elif defined(LEAN_EMSCRIPTEN) || defined(LEAN_RISC0)
     tid = 0;
 #else
     // since Linux 2.4.11, our glibc 2.27 requires at least 3.2
@@ -550,6 +552,9 @@ void finalize_process() {}
 extern "C" lean_object* lean_mk_io_error_other_error(uint32_t, lean_object*);
 
 extern "C" LEAN_EXPORT obj_res lean_io_process_spawn(obj_arg args_, obj_arg) {
+#if defined(LEAN_RISC0)
+    return lean_io_result_mk_error(lean_mk_io_error_other_error(1, mk_string("process spawning is not supported on RISC0")));
+#else
     object_ref args(args_);
     object_ref stdio_cfg = cnstr_get_ref(args, 0);
     stdio stdin_mode  = static_cast<stdio>(cnstr_get_uint8(stdio_cfg.raw(), 0));
@@ -575,6 +580,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_spawn(obj_arg args_, obj_arg) {
         // TODO: decode
         return lean_io_result_mk_error(lean_mk_io_error_other_error(err.code().value(), mk_string(err.code().message())));
     }
+#endif
 }
 
 }
