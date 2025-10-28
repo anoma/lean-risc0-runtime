@@ -4,7 +4,7 @@ set(CMAKE_SYSTEM_PROCESSOR riscv32)
 set(tools /home/heliax/.risc0/toolchains/v2024.1.5-cpp-x86_64-unknown-linux-gnu/riscv32im-linux-x86_64)
 
 set(CMAKE_SYSROOT ${tools}/riscv32-unknown-elf)
-set(CMAKE_STAGING_PREFIX /home/heliax/.stage)
+set(CMAKE_STAGING_PREFIX /home/heliax/.lean-risc0)
 
 set(CMAKE_C_COMPILER ${tools}/bin/riscv32-unknown-elf-gcc)
 set(CMAKE_CXX_COMPILER ${tools}/bin/riscv32-unknown-elf-g++)
