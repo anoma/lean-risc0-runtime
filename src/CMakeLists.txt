@@ -46,7 +46,7 @@ file(GLOB RUNTIME_CPPS "${CMAKE_CURRENT_SOURCE_DIR}/runtime/*.cpp")
 file(GLOB UTIL_CS   "${CMAKE_CURRENT_SOURCE_DIR}/util/*.c")
 file(GLOB UTIL_CPPS "${CMAKE_CURRENT_SOURCE_DIR}/util/*.cpp")
 
-configure_file(util/ffi.cpp "${CMAKE_CURRENT_BINARY_DIR}/util/ffi.cpp" @ONLY)
+configure_file(util/ffi.cpp.in "${CMAKE_CURRENT_BINARY_DIR}/util/ffi.cpp" @ONLY)
 
 # 3) Static library: libLean.a
 add_library(Lean STATIC ${RUNTIME_CS} ${RUNTIME_CPPS} ${UTIL_CS} ${UTIL_CPPS} "${CMAKE_CURRENT_BINARY_DIR}/util/ffi.cpp")
@@ -56,3 +56,20 @@ target_include_directories(Lean PUBLIC
   "${CMAKE_CURRENT_BINARY_DIR}/generated-include"
 )
 target_compile_features(Lean PUBLIC c_std_11 cxx_std_17)
+target_compile_definitions(Lean PRIVATE LEAN_RISC0=1)
+
+set(AUTO_THREAD_FINALIZATION OFF)
+
+set(CMAKE_CXX_FLAGS                "-DLEAN_BUILD_TYPE=\"${CMAKE_BUILD_TYPE}\" -DLEAN_EXPORTING")
+set(CMAKE_CXX_FLAGS_DEBUG          "-DLEAN_DEBUG")
+set(CMAKE_CXX_FLAGS_MINSIZEREL     "-DNDEBUG")
+set(CMAKE_CXX_FLAGS_RELEASE        "-DNDEBUG")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-DNDEBUG")
+set(CMAKE_CXX_FLAGS_RELWITHASSERT  "-DLEAN_DEBUG")
+
+set(CMAKE_CXX_FLAGS                "-Wall -Wextra ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS_DEBUG          "-g3 ${CMAKE_CXX_FLAGS_DEBUG}")
+set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os ${CMAKE_CXX_FLAGS_MINSIZEREL}")
+set(CMAKE_CXX_FLAGS_RELEASE        "-O3 ${CMAKE_CXX_FLAGS_RELEASE}")
+set(CMAKE_CXX_FLAGS_RELWITHASSERT  "-O3 ${CMAKE_CXX_FLAGS_RELWITHASSERT}")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g3 -fno-omit-frame-pointer ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
