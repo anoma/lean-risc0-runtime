@@ -7,13 +7,13 @@ Author: Henrik Böving
 #include <lean/lean.h>
 #include "runtime/object.h"
 
-#ifndef LEAN_EMSCRIPTEN
+#if !defined(LEAN_EMSCRIPTEN) && !defined(LEAN_RISC0)
 #include <uv.h>
 #endif
 
 namespace lean {
 
-#ifndef LEAN_EMSCRIPTEN
+#if !defined(LEAN_EMSCRIPTEN) && !defined(LEAN_RISC0)
 
 typedef union in_addr_storage {
     in_addr ipv4;

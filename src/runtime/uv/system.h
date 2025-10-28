@@ -4,7 +4,7 @@
 
 namespace lean {
 
-#ifndef LEAN_EMSCRIPTEN
+#if !defined(LEAN_EMSCRIPTEN) && !defined(LEAN_RISC0)
 using namespace std;
 #include <uv.h>
 #endif

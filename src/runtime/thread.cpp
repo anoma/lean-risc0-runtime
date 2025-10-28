@@ -57,6 +57,7 @@ extern "C" LEAN_EXPORT void lean_finalize_thread() {
     run_post_thread_finalizers();
 }
 
+#ifndef LEAN_RISC0
 static void thread_main(void * p) {
     lean_initialize_thread();
     std::unique_ptr<runnable> f;
@@ -67,6 +68,7 @@ static void thread_main(void * p) {
 
     lean_finalize_thread();
 }
+#endif
 
 #if defined(LEAN_MULTI_THREAD)
 size_t lthread::m_thread_stack_size = LEAN_DEFAULT_THREAD_STACK_SIZE;

@@ -1971,7 +1971,7 @@ static size_t mk_capacity(size_t sz) {
     return sz*2;
 }
 
-extern "C" LEAN_EXPORT object * lean_string_push(object * s, unsigned c) {
+extern "C" LEAN_EXPORT object * lean_string_push(object * s, uint32_t c) {
     size_t sz  = lean_string_size(s);
     size_t len = lean_string_len(s);
     object * r;

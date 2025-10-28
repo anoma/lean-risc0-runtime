@@ -58,6 +58,10 @@ size_t get_stack_size(bool main) {
         return lthread::get_thread_stack_size();
     }
 }
+#elif defined(LEAN_RISC0)
+size_t get_stack_size(bool main) {
+    return 0x1F0400;
+}
 #else
 size_t get_stack_size(bool main) {
     if (main) {

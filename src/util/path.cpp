@@ -21,7 +21,7 @@ Author: Leonardo de Moura, Gabriel Ebner
 
 #ifdef _MSC_VER
 #define S_ISDIR(mode) ((mode & _S_IFDIR) != 0)
-#else
+#elifndef LEAN_RISC0
 #include <dirent.h>
 #endif
 
@@ -47,6 +47,11 @@ std::string get_exe_location() {
     GetModuleFileName(hModule, path, MAX_PATH);
     return std::string(path);
 }
+bool is_path_sep(char c) { return c == g_path_sep; }
+#elif defined(LEAN_RISC0)
+// RISC0 does not support getting the executable location
+static char g_path_sep     = ':';
+static constexpr char g_sep          = '/';
 bool is_path_sep(char c) { return c == g_path_sep; }
 #elif defined(__APPLE__)
 // OSX version
@@ -108,6 +113,7 @@ std::string resolve(std::string const & rel_or_abs, std::string const & base) {
 }
 #endif
 
+#ifndef LEAN_RISC0
 std::string normalize_path(std::string f) {
     for (auto & c : f) {
         if (c == g_bad_sep)
@@ -233,4 +239,5 @@ std::vector<std::string> read_dir(std::string const &dirname) {
 #endif
     return files;
 }
+#endif
 }
