@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.18)
-project(ModifiedLeanRuntime C CXX)
+project(lean-risc0-runtime C CXX)
+include(GNUInstallDirs)
+
 set(LEAN_VERSION_MAJOR 4)
 set(LEAN_VERSION_MINOR 22)
 set(LEAN_VERSION_PATCH 0)
@@ -51,12 +53,32 @@ configure_file(util/ffi.cpp.in "${CMAKE_CURRENT_BINARY_DIR}/util/ffi.cpp" @ONLY)
 # 3) Static library: libLean.a
 add_library(Lean STATIC ${RUNTIME_CS} ${RUNTIME_CPPS} ${UTIL_CS} ${UTIL_CPPS} "${CMAKE_CURRENT_BINARY_DIR}/util/ffi.cpp")
 target_include_directories(Lean PUBLIC
-  "${CMAKE_CURRENT_SOURCE_DIR}"
-  "${CMAKE_CURRENT_SOURCE_DIR}/include"
-  "${CMAKE_CURRENT_BINARY_DIR}/generated-include"
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated-include>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 target_compile_features(Lean PUBLIC c_std_11 cxx_std_17)
 target_compile_definitions(Lean PRIVATE LEAN_RISC0=1)
+
+install(TARGETS Lean
+    EXPORT LeanTargets
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+install(
+  DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+  FILES_MATCHING PATTERN "*.h"
+)
+install(
+  DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/generated-include/"
+  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+  FILES_MATCHING PATTERN "*.h"
+)
 
 set(AUTO_THREAD_FINALIZATION OFF)
 
