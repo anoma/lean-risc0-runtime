@@ -20,16 +20,20 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #endif
 // Linux include files
 #include <unistd.h> // NOLINT
+#ifndef LEAN_RISC0
 #include <sys/mman.h>
+#endif
 #include <sys/file.h>
-#ifndef LEAN_EMSCRIPTEN
+#if !defined(LEAN_EMSCRIPTEN) && !defined(LEAN_RISC0)
 #include <sys/random.h>
 #endif
 #endif
 #ifndef LEAN_WINDOWS
 #include <csignal>
 #endif
+#ifndef LEAN_RISC0
 #include <dirent.h>
+#endif
 #include <fcntl.h>
 #include <iostream>
 #include <chrono>
