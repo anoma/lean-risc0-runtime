@@ -414,7 +414,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_prim_handle_mk(b_obj_arg filename, uint8 
     case 3: fp_mode = "r+"; break;  // readWrite
     case 4: fp_mode = "a"; break;  // append
     default:
-        throw std::runtime_error("lean_io_prim_handle_mk: invalid file mode");
+        return io_result_mk_error("invalid file mode");
     }
     FILE * fp = fdopen(fd, fp_mode);
     if (!fp) {
