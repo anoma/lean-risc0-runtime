@@ -42,16 +42,14 @@ configure_file(
 )
 
 # 2) Runtime sources
-file(GLOB RUNTIME_CS   "${CMAKE_CURRENT_SOURCE_DIR}/runtime/*.c")
 file(GLOB RUNTIME_CPPS "${CMAKE_CURRENT_SOURCE_DIR}/runtime/*.cpp")
 
-file(GLOB UTIL_CS   "${CMAKE_CURRENT_SOURCE_DIR}/util/*.c")
 file(GLOB UTIL_CPPS "${CMAKE_CURRENT_SOURCE_DIR}/util/*.cpp")
 
 configure_file(util/ffi.cpp.in "${CMAKE_CURRENT_BINARY_DIR}/util/ffi.cpp" @ONLY)
 
 # 3) Static library: libLean.a
-add_library(Lean STATIC ${RUNTIME_CS} ${RUNTIME_CPPS} ${UTIL_CS} ${UTIL_CPPS} "${CMAKE_CURRENT_BINARY_DIR}/util/ffi.cpp")
+add_library(Lean STATIC ${RUNTIME_CPPS} ${UTIL_CPPS} "${CMAKE_CURRENT_BINARY_DIR}/util/ffi.cpp")
 target_include_directories(Lean PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
