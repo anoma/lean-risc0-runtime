@@ -89,7 +89,7 @@ set(CMAKE_CXX_FLAGS_RELEASE        "-DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELWITHASSERT  "-DLEAN_DEBUG")
 
-set(CMAKE_CXX_FLAGS                "-Wall -Wextra ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS                "-Wall -Wextra -ffunction-sections -fdata-sections -fPIC -march=rv32im -mabi=ilp32 -fno-builtin -fno-rtti -fno-threadsafe-statics ${CMAKE_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS_DEBUG          "-g3 ${CMAKE_CXX_FLAGS_DEBUG}")
 set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os ${CMAKE_CXX_FLAGS_MINSIZEREL}")
 set(CMAKE_CXX_FLAGS_RELEASE        "-O3 ${CMAKE_CXX_FLAGS_RELEASE}")
