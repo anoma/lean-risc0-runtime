@@ -31,7 +31,9 @@ LEAN_EXPORT scope_max_heartbeat::scope_max_heartbeat(size_t max):flet<size_t>(g_
 
 // separate definition to allow breakpoint in debugger
 void throw_heartbeat_exception() {
+#ifndef LEAN_RISC0
     throw heartbeat_exception();
+#endif
 }
 
 void check_heartbeat() {
@@ -52,7 +54,9 @@ void check_interrupted() {
         inc_ref(g_cancel_tk);
         if (get_io_scalar_result<bool>(lean_io_cancel_token_is_set(g_cancel_tk, lean_io_mk_world())) &&
             !std::uncaught_exception()) {
+#ifndef LEAN_RISC0
             throw interrupted();
+#endif
         }
     }
 }

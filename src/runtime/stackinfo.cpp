@@ -26,7 +26,9 @@ Author: Leonardo de Moura
 
 namespace lean {
 void throw_get_stack_size_failed() {
+#ifndef LEAN_RISC0
     throw exception("failed to retrieve thread stack size");
+#endif
 }
 
 #if defined(LEAN_WINDOWS)
@@ -126,7 +128,9 @@ size_t get_available_stack_size() {
 
 // separate definition to allow breakpoint in debugger
 void throw_stack_space_exception(char const * component_name) {
+#ifndef LEAN_RISC0
     throw stack_space_exception(component_name);
+#endif
 }
 
 void check_stack(char const * component_name) {

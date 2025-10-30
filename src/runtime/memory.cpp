@@ -141,7 +141,9 @@ void set_max_memory_megabyte(unsigned max) {
 
 // separate definition to allow breakpoint in debugger
 void throw_memory_exception(char const * component_name) {
+#ifndef LEAN_RISC0
     throw memory_exception(component_name);
+#endif
 }
 
 void check_memory(char const * component_name) {

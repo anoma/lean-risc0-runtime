@@ -313,7 +313,10 @@ void initialize_process() {
 void finalize_process() {}
 
 #elif defined(LEAN_RISC0)
-// RISC0 does not support process creation
+
+void initialize_process() {}
+void finalize_process() {}
+
 #else
 
 extern "C" LEAN_EXPORT obj_res lean_io_process_get_current_dir(obj_arg) {

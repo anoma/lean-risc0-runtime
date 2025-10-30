@@ -19,7 +19,148 @@ Author: Leonardo de Moura
 #ifdef __cplusplus
 #include <atomic>
 #include <stdlib.h>
+
+#ifdef LEAN_RISC0
+
+namespace nostl {
+
+// A no-op stand-in for std::atomic<T>.
+// Only for single-threaded builds (or code paths where atomicity doesn't matter).
+template <class T>
+class fake_atomic {
+public:
+    using value_type = T;
+
+    // constructors
+    constexpr fake_atomic() noexcept = default;
+    constexpr explicit fake_atomic(T desired) noexcept : value_(desired) {}
+
+    fake_atomic(const fake_atomic&)            = delete;
+    fake_atomic& operator=(const fake_atomic&) = delete;
+
+    // store/load
+    void store(T desired, std::memory_order = std::memory_order_seq_cst) noexcept {
+        value_ = desired;
+    }
+    T load(std::memory_order = std::memory_order_seq_cst) const noexcept {
+        return value_;
+    }
+
+    // implicit convenience (like std::atomic)
+    operator T() const noexcept { return load(); }
+    T operator=(T desired) noexcept { store(desired); return desired; }
+
+    // exchange
+    T exchange(T desired, std::memory_order = std::memory_order_seq_cst) noexcept {
+        T old = value_;
+        value_ = desired;
+        return old;
+    }
+
+    // compare_exchange_weak/strong
+    bool compare_exchange_weak(T& expected, T desired,
+                               std::memory_order = std::memory_order_seq_cst,
+                               std::memory_order = std::memory_order_seq_cst) noexcept
+    {
+        if (value_ == expected) {
+            value_ = desired;
+            return true;
+        }
+        expected = value_;
+        return false;
+    }
+    bool compare_exchange_strong(T& expected, T desired,
+                                 std::memory_order mo = std::memory_order_seq_cst,
+                                 std::memory_order mofail = std::memory_order_seq_cst) noexcept
+    {
+        // Exact same semantics here; no spurious failure.
+        return compare_exchange_weak(expected, desired, mo, mofail);
+    }
+
+    // fetch_* for integral/enum types
+    template <class U = T, std::enable_if_t<std::is_integral_v<U> || std::is_enum_v<U>, int> = 0>
+    T fetch_add(T arg, std::memory_order = std::memory_order_seq_cst) noexcept {
+        T old = value_; value_ = static_cast<T>(value_ + arg); return old;
+    }
+    template <class U = T, std::enable_if_t<std::is_integral_v<U> || std::is_enum_v<U>, int> = 0>
+    T fetch_sub(T arg, std::memory_order = std::memory_order_seq_cst) noexcept {
+        T old = value_; value_ = static_cast<T>(value_ - arg); return old;
+    }
+    template <class U = T, std::enable_if_t<std::is_integral_v<U>, int> = 0>
+    T fetch_and(T arg, std::memory_order = std::memory_order_seq_cst) noexcept {
+        T old = value_; value_ = static_cast<T>(value_ & arg); return old;
+    }
+    template <class U = T, std::enable_if_t<std::is_integral_v<U>, int> = 0>
+    T fetch_or(T arg, std::memory_order = std::memory_order_seq_cst) noexcept {
+        T old = value_; value_ = static_cast<T>(value_ | arg); return old;
+    }
+    template <class U = T, std::enable_if_t<std::is_integral_v<U>, int> = 0>
+    T fetch_xor(T arg, std::memory_order = std::memory_order_seq_cst) noexcept {
+        T old = value_; value_ = static_cast<T>(value_ ^ arg); return old;
+    }
+
+    // ++/-- (integral/enum only)
+    template <class U = T, std::enable_if_t<std::is_integral_v<U> || std::is_enum_v<U>, int> = 0>
+    T operator++() noexcept { return static_cast<T>(fetch_add(1) + 1); }
+    template <class U = T, std::enable_if_t<std::is_integral_v<U> || std::is_enum_v<U>, int> = 0>
+    T operator++(int) noexcept { return fetch_add(1); }
+    template <class U = T, std::enable_if_t<std::is_integral_v<U> || std::is_enum_v<U>, int> = 0>
+    T operator--() noexcept { return static_cast<T>(fetch_sub(1) - 1); }
+    template <class U = T, std::enable_if_t<std::is_integral_v<U> || std::is_enum_v<U>, int> = 0>
+    T operator--(int) noexcept { return fetch_sub(1); }
+
+    // Flags to resemble std::atomic API surface
+    static constexpr bool is_always_lock_free = true; // irrelevant but convenient
+
+private:
+    T value_{};
+};
+
+} // namespace nostl
+#define _Atomic(t) nostl::fake_atomic<t>
+
+namespace std {
+template <class T,
+          class = std::enable_if_t<std::is_integral_v<T> || std::is_enum_v<T>>>
+inline T atomic_fetch_sub_explicit(nostl::fake_atomic<T>* obj,
+                                   int arg,
+                                   std::memory_order) noexcept {
+    return obj->fetch_sub(arg);
+}
+
+template <class T,
+          class = std::enable_if_t<std::is_integral_v<T> || std::is_enum_v<T>>>
+inline T atomic_fetch_sub_explicit(volatile nostl::fake_atomic<T>* obj,
+                                   int arg,
+                                   std::memory_order) noexcept {
+    // volatile-qualified path: cast away volatility for the no-op impl,
+    // which is fine because we're single-threaded / unsynchronized by design.
+    return const_cast<nostl::fake_atomic<T>*>(static_cast<const nostl::fake_atomic<T>*>(obj))
+        ->fetch_sub(arg);
+}
+template <class T,
+          class = std::enable_if_t<std::is_integral_v<T> || std::is_enum_v<T>>>
+inline T atomic_fetch_add_explicit(nostl::fake_atomic<T>* obj,
+                                   int arg,
+                                   std::memory_order = std::memory_order_seq_cst) noexcept {
+    return obj->fetch_add(arg);
+}
+template <class T,
+          class = std::enable_if_t<std::is_integral_v<T> || std::is_enum_v<T>>>
+inline T atomic_fetch_add_explicit(volatile nostl::fake_atomic<T>* obj,
+                                   int arg,
+                                   std::memory_order = std::memory_order_seq_cst) noexcept {
+    return const_cast<nostl::fake_atomic<T>*>(static_cast<const nostl::fake_atomic<T>*>(obj))
+        ->fetch_add(arg);
+}
+} // namespace std
+
+#else
+
 #define _Atomic(t) std::atomic<t>
+
+#endif
+
 #define LEAN_USING_STD using namespace std; /* NOLINT */
 extern "C" {
 #else

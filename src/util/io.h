@@ -18,7 +18,9 @@ template<typename T> T get_io_result(object * o) {
         inc(err_obj);
         dec(o);
         string_ref error(lean_io_error_to_string(err_obj));
+#ifndef LEAN_RISC0
         throw exception(error.to_std_string());
+#endif
     } else {
         T r(io_result_get_value(o), true);
         dec(o);
@@ -32,7 +34,9 @@ inline void consume_io_result(object * o) {
         inc(err_obj);
         dec(o);
         string_ref error(lean_io_error_to_string(err_obj));
+#ifndef LEAN_RISC0
         throw exception(error.to_std_string());
+#endif
     }
     dec(o);
 }
@@ -43,7 +47,9 @@ template<typename T> T get_io_scalar_result(object * o) {
         inc(err_obj);
         dec(o);
         string_ref error(lean_io_error_to_string(err_obj));
+#ifndef LEAN_RISC0
         throw exception(error.to_std_string());
+#endif
     } else {
         T r = unbox(io_result_get_value(o));
         dec(o);

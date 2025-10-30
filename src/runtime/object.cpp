@@ -110,6 +110,9 @@ extern "C" LEAN_EXPORT void lean_set_panic_messages(bool flag) {
     g_panic_messages = flag;
 }
 
+#ifdef LEAN_RISC0
+static void panic_eprintln(char const * line, bool force_stderr) {}
+#else
 static void panic_eprintln(char const * line, bool force_stderr) {
     if (force_stderr || g_exit_on_panic || should_abort_on_panic()) {
         // If we are about to kill the process, we should skip the Lean stderr buffer
@@ -118,6 +121,7 @@ static void panic_eprintln(char const * line, bool force_stderr) {
         io_eprintln(lean_mk_string(line));
     }
 }
+#endif
 
 static void print_backtrace(bool force_stderr) {
 #if LEAN_SUPPORTS_BACKTRACE
