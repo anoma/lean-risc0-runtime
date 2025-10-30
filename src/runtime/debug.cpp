@@ -4,6 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#ifdef LEAN_RISC0
+
+void initialize_debug() {}
+void finalize_debug() {}
+
+#else
+
 #include <iostream>
 #include <sstream>
 #include <set>
@@ -85,9 +92,11 @@ void invoke_debugger() {
     exit(1);
 #else
     g_has_violations = true;
+#ifndef LEAN_RISC0
     if (!g_debug_dialog) {
         throw unreachable_reached();
     }
+#endif
     for (;;) {
         if (std::cin.eof())
             debuggable_exit();
@@ -140,3 +149,4 @@ extern "C" LEAN_EXPORT void lean_notify_assert(const char * fileName, int line, 
     invoke_debugger();
 }
 }
+#endif

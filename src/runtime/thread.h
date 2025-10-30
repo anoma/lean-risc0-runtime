@@ -19,6 +19,9 @@ namespace chrono = std::chrono;
 };
 
 #if defined(LEAN_MULTI_THREAD)
+#ifdef LEAN_RISC0
+#error "LEAN_RISC0 cannot be built with multi-threading support"
+#endif
 #include <thread>
 #include <mutex>
 #include <shared_mutex>

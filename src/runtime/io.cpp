@@ -33,9 +33,9 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #endif
 #ifndef LEAN_RISC0
 #include <dirent.h>
-#endif
 #include <fcntl.h>
 #include <iostream>
+#endif
 #include <chrono>
 #include <sstream>
 #include <fstream>
@@ -68,7 +68,9 @@ extern "C" LEAN_EXPORT void lean_io_result_show_error(b_obj_arg r) {
     object * err = io_result_get_error(r);
     inc_ref(err);
     object * str = lean_io_error_to_string(err);
+#ifndef LEAN_RISC0
     std::cerr << "uncaught exception: " << string_cstr(str) << std::endl;
+#endif
     dec_ref(str);
 }
 
