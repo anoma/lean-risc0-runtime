@@ -192,7 +192,12 @@ inline unsigned hardware_concurrency() { return 1; }
 }
 #endif
 
-#ifdef _MSC_VER
+#if defined(LEAN_RISC0)
+#define LEAN_THREAD_PTR(T, V) static T * V = nullptr
+#define LEAN_THREAD_EXTERN_PTR(T, V) extern T * V
+#define LEAN_THREAD_GLOBAL_PTR(T, V) T * V = nullptr
+#define LEAN_THREAD_VALUE(T, V, VAL) static T V = VAL
+#elif defined(_MSC_VER)
 #define LEAN_THREAD_PTR(T, V) static __declspec(thread) T * V = nullptr
 #define LEAN_THREAD_EXTERN_PTR(T, V) extern __declspec(thread) T * V
 #define LEAN_THREAD_GLOBAL_PTR(T, V) __declspec(thread) T * V = nullptr

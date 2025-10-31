@@ -1565,13 +1565,15 @@ void initialize_io() {
     _setmode(_fileno(stderr), _O_BINARY);
     _setmode(_fileno(stdin), _O_BINARY);
 #endif
+#ifndef LEAN_RISC0
     g_stream_stdout = lean_stream_of_handle(io_wrap_handle(stdout));
     mark_persistent(g_stream_stdout);
     g_stream_stderr = lean_stream_of_handle(io_wrap_handle(stderr));
     mark_persistent(g_stream_stderr);
     g_stream_stdin  = lean_stream_of_handle(io_wrap_handle(stdin));
     mark_persistent(g_stream_stdin);
-#if !defined(LEAN_WINDOWS) && !defined(LEAN_EMSCRIPTEN)
+#endif
+#if !defined(LEAN_WINDOWS) && !defined(LEAN_EMSCRIPTEN) && !defined(LEAN_RISC0)
     // We want to handle SIGPIPE ourselves
     lean_always_assert(signal(SIGPIPE, SIG_IGN) != SIG_ERR);
 #endif

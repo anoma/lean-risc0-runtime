@@ -6,8 +6,10 @@ Author: Leonardo de Moura
 */
 #ifdef LEAN_RISC0
 
+namespace lean {
 void initialize_debug() {}
 void finalize_debug() {}
+}
 
 #else
 
